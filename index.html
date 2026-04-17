@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Quest: The City of Tomorrow</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text: #1F2937;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        #game-container {
+            background-color: var(--card-bg);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 { color: var(--primary); }
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 8px 0;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: left;
+        }
+        .btn:hover { background-color: #4338CA; }
+        .hidden { display: none; }
+        #story-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .result-box {
+            background: #EEF2FF;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="intro-screen">
+        <h1>Career Quest: The City of Tomorrow 🚀</h1>
+        <p>Welcome, Recruit! You have been selected to help build "Neo-Veridia," the first sustainable smart city on Mars. You will face 5 critical missions. The choices you make will reveal your ultimate career profile!</p>
+        <button class="btn" onclick="startGame()" style="text-align: center;">Start the Mission</button>
+    </div>
+
+    <div id="question-screen" class="hidden">
+        <h2 id="scenario-title">Scenario</h2>
+        <p id="story-text">Story goes here...</p>
+        <div id="options-container"></div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h1>Mission Complete! 🎉</h1>
+        <p>Based on your actions in Neo-Veridia, your primary personality type is:</p>
+        <h2 id="riasec-type" style="color: var(--primary); font-size: 28px;"></h2>
+        <p id="riasec-desc"></p>
+        
+        <div class="result-box">
+            <h3>💼 Recommended Professions:</h3>
+            <p id="professions"></p>
+            <h3>🏢 Recommended Industries:</h3>
+            <p id="industries"></p>
+        </div>
+        <button class="btn" onclick="location.reload()" style="text-align: center; margin-top: 20px;">Play Again</button>
+    </div>
+</div>
+
+<script>
+    // RIASEC Scores
+    let scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+    let currentQuestion = 0;
+
+    const questions = [
+        {
+            title: "Mission 1: The Solar Storm ☀️",
+            text: "A massive solar storm has hit the colony! The power grid is failing. What is your immediate reaction?",
+            options: [
+                { text: "Put on a suit and manually repair the solar panels outside.", type: "R" },
+                { text: "Calculate the trajectory of the storm and reroute power based on data.", type: "I" },
+                { text: "Draw a quick visual map of the damaged areas for the team to understand.", type: "A" },
+                { text: "Check on the frightened colonists and ensure everyone is calm and safe.", type: "S" },
+                { text: "Take charge, assign roles, and direct the emergency response team.", type: "E" },
+                { text: "Log the damage reports and update the colony's inventory system.", type: "C" }
+            ]
+        },
+        {
+            title: "Mission 2: The New App Launch 📱",
+            text: "The colony is launching a new communication app. How do you contribute to the project?",
+            options: [
+                { text: "Write the backend code and build the server hardware.", type: "R" },
+                { text: "Research user psychology to figure out the most logical features.", type: "I" },
+                { text: "Design the logo, color schemes, and cool animations.", type: "A" },
+                { text: "Run focus groups to listen to what the colonists need from the app.", type: "S" },
+                { text: "Pitch the app to Earth investors to secure more funding.", type: "E" },
+                { text: "Track the budget, schedule meetings, and organize the files.", type: "C" }
+            ]
+        },
+        {
+            title: "Mission 3: The Alien Plant 🌱",
+            text: "A mysterious, glowing plant is discovered in the caves. What is your role?",
+            options: [
+                { text: "Build a specialized greenhouse to contain and grow the plant.", type: "R" },
+                { text: "Study the plant's DNA under a microscope to understand its biology.", type: "I" },
+                { text: "Photograph the plant and write a creative story about its origins.", type: "A" },
+                { text: "Organize a tour to teach the local students about this new discovery.", type: "S" },
+                { text: "Convince the colony leaders to export the plant as a new energy source.", type: "E" },
+                { text: "Categorize the plant and carefully record its daily growth metrics.", type: "C" }
+            ]
+        },
+        {
+            title: "Mission 4: The Festival 🎶",
+            text: "It's the colony's 1-year anniversary! You are organizing a massive festival.",
+            options: [
+                { text: "Handle the soundboard, lighting rigs, and stage construction.", type: "R" },
+                { text: "Analyze ticket sales data to optimize crowd flow and pricing.", type: "I" },
+                { text: "Perform on stage or create the promotional artwork.", type: "A" },
+                { text: "Coordinate the medical tents and ensure attendees are safe and hydrated.", type: "S" },
+                { text: "Book the best talent and negotiate with food vendors.", type: "E" },
+                { text: "Manage the payroll, vendor contracts, and clean-up schedule.", type: "C" }
+            ]
+        },
+        {
+            title: "Mission 5: The Lost Rover 🚙",
+            text: "A rover has broken down miles away from the base with valuable cargo.",
+            options: [
+                { text: "Drive out there with a toolbox and fix the engine yourself.", type: "R" },
+                { text: "Investigate the diagnostic logs to figure out why the engine failed.", type: "I" },
+                { text: "Use the downtime to sketch the beautiful Martian landscape.", type: "A" },
+                { text: "Radio the driver, keep them company, and offer moral support.", type: "S" },
+                { text: "Negotiate a rescue mission with an allied colony nearby.", type: "E" },
+                { text: "Calculate the exact value of the cargo and update insurance logs.", type: "C" }
+            ]
+        }
+    ];
+
+    const resultsData = {
+        "R": {
+            name: "Realistic (The Doer)",
+            desc: "You are practical, hands-on, and love working with tools, machines, or the outdoors. You prefer action over theory.",
+            prof: "Mechanical Engineer, Architect, IT Technician, Pilot, Surgeon.",
+            ind: "Engineering, Construction, Technology Hardware, Manufacturing."
+        },
+        "I": {
+            name: "Investigative (The Thinker)",
+            desc: "You are analytical, curious, and love solving complex problems. You enjoy science, research, and understanding how things work.",
+            prof: "Data Scientist, Biologist, Software Developer, Psychologist, Researcher.",
+            ind: "STEM (Science, Tech, Engineering, Math), Healthcare, Academia."
+        },
+        "A": {
+            name: "Artistic (The Creator)",
+            desc: "You are imaginative, expressive, and innovative. You thrive in environments that allow for self-expression and out-of-the-box thinking.",
+            prof: "Graphic Designer, Writer, Musician, UX/UI Designer, Film Director.",
+            ind: "Media, Entertainment, Marketing, Arts & Design."
+        },
+        "S": {
+            name: "Social (The Helper)",
+            desc: "You are empathetic, patient, and collaborative. You find fulfillment in teaching, healing, and supporting others.",
+            prof: "Teacher, Counselor, Nurse, Human Resources Manager, Physical Therapist.",
+            ind: "Education, Healthcare, Social Services, Non-Profits."
+        },
+        "E": {
+            name: "Enterprising (The Persuader)",
+            desc: "You are ambitious, outgoing, and a natural leader. You love starting projects, making deals, and guiding teams to success.",
+            prof: "Entrepreneur, Sales Director, Lawyer, PR Specialist, Business Manager.",
+            ind: "Business, Law, Marketing, Real Estate."
+        },
+        "C": {
+            name: "Conventional (The Organizer)",
+            desc: "You are detail-oriented, organized, and highly reliable. You excel at managing data, processes, and ensuring systems run smoothly.",
+            prof: "Accountant, Data Analyst, Logistician, Operations Manager, Auditor.",
+            ind: "Finance, Logistics, Corporate Administration, Government."
+        }
+    };
+
+    function startGame() {
+        document.getElementById('intro-screen').classList.add('hidden');
+        document.getElementById('question-screen').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const q = questions[currentQuestion];
+        document.getElementById('scenario-title').innerText = q.title;
+        document.getElementById('story-text').innerText = q.text;
+        
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+        
+        // Shuffle options so the order isn't always RIASEC
+        let shuffledOptions = q.options.sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt.type);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(type) {
+        scores[type]++;
+        currentQuestion++;
+        
+        if (currentQuestion < questions.length) {
+            showQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('question-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        // Find highest score
+        let highestType = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        let result = resultsData[highestType];
+
+        document.getElementById('riasec-type').innerText = result.name;
+        document.getElementById('riasec-desc').innerText = result.desc;
+        document.getElementById('professions').innerText = result.prof;
+        document.getElementById('industries').innerText = result.ind;
+    }
+</script>
+</body>
+</html>
